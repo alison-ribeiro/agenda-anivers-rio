@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct{
+		char nome[50];
+		int dia,mes, ano;
+	}Contato;
+	
+void imprimir(Contato **c, int quant);
+int cadastrar_contato(Contato **c, int quant, int tam);
+void alterar_contato(Contato **c, int quant);
+void salvar(Contato **c, int quant, char arq[]);
+int ler_arquivo(Contato **c, char arq[]);
+int excluir_contato(Contato **c, int quant);
+
+int main(){
+	
+	Contato *agenda[50];
+	char arquivo[] = {"agenda.txt"};
+	
+	int tam = 50, quant = 0, op = 0;
+	
+	do{
+		printf("\n\t0 - Sair\n\t1 - Cadastrar\n\t2 - Alterar\n\t3 - Imprimir\n\t4 - Salvar\n\t5 - Ler arquivo\n\t6 - Excluir\n");
+		scanf("%d", &op);
+		getchar();
+		switch(op){
+			case 1:
+				quant += cadastrar_contato(agenda, quant, tam);
+				break;
+			case 2:
+				alterar_contato(agenda, quant);
+				break;
+			case 3:
+				imprimir(agenda, quant);
+				break;
+			case 4:
+				salvar(agenda, quant, arquivo);
+				break;	
+			case 5:
+				quant = ler_arquivo(agenda, arquivo);
+				break;
+			case 6:
+				quant += excluir_contato(agenda, quant);
+				break;
+			default:
+				if(op != 0)
+					printf("\n\tOpcao invalida!!!\n");
+			
+		}
+	}while(op != 0);
+	
+	
+	
+}
+
+int excluir_contato(Contato **c, int quant){
+	int id;
+	imprimir(c, quant);
+	printf("\n\tDigite o codigo do contato que deseja excluir: \n");
+	scanf("%d", &id);
+	getchar();
+	id--;
+	
+	if(id >= 0 && id < quant){
+		free(c[id]);
+		if(id < quant -1)
+			c[id] = c[quant -1];
+
+		return -1;
+	}else{
+		printf("\n\tCodigo invalido!\n");
+		return 0;
+	}
+}
+
+int ler_arquivo(Contato **c, char arq[]){
+	int quant = 0,i;
+	
+	FILE *file = fopen(arq, "r");
+	Contato *novo = malloc(sizeof(Contato));
+	
+	if(file){
+		fscanf(file, "%d\n", &quant);
+		for(i = 0; i < quant; i++){
+			fgets(novo -> nome,50, file );
+			fscanf(file, "%d %d %d\n", &novo -> dia,&novo -> mes,&novo -> ano);
+			c[i] = novo;	
+			if(i < quant -1)
+				novo = malloc(sizeof(Contato));
+		}
+		fclose(file);
+	}else
+		printf("\n\tNao foi possivel abrir/criar o arquivo!\n");
+	
+	return quant;
+}
+
+void salvar(Contato **c, int quant, char arq[]){
+	int i;
+	
+	FILE *file = fopen(arq, "w");
+	
+	if(file){
+		fprintf(file,"%d\n", quant);
+		for(i =0;i < quant; i++){
+			fputs(c[i] -> nome, file);
+			fputc('\n', file);
+			fprintf(file, "%d %d %d\n", c[i] -> dia, c[i] -> mes, c[i] -> ano);
+		}
+		fclose(file);
+	}else
+		printf("\n\tNao foi possivel abrir/criar o arquivo!\n");
+}
+
+
+void imprimir(Contato **c, int quant){
+	
+	
+	int i;
+	
+	printf("\n\t\tLista de contatos: \n");
+	printf("\t--------------------------------\n");
+	for(i = 0; i < quant; i++){
+		printf("\t%d = %2d/%2d/%4d\t%s \n", i+1, c[i] -> dia, c[i] -> mes, c[i] -> ano, c[i] -> nome);
+	}
+	printf("\t--------------------------------\n");
+}
+
+int cadastrar_contato(Contato **c, int quant, int tam){
+	
+	if(quant < tam) {
+		Contato *novo = malloc(sizeof(Contato));
+		
+		printf("\nDigite o nome do contato: ");
+		scanf("%50[^\n]", novo -> nome);
+		
+		printf("\nDigite a data de aniversario dd mm aaaa: ");
+		scanf("%d%d%d", &novo -> dia, &novo -> mes, &novo -> ano);
+		getchar();
+		c[quant] = novo;
+		return 1;
+	}else{
+		printf("\n\tImpossivel novo cadastro. vetor cheio!\n");
+		return 0;
+	}
+}
+
+void alterar_contato(Contato **c, int quant){
+	int id;
+	imprimir(c, quant);
+	printf("\n\tDigite o codigo do contato que deseja alterar: \n");
+	scanf("%d", &id);
+	getchar();
+	id--;
+	
+	if(id >= 0 && id < quant){
+		Contato *novo = malloc(sizeof(Contato));
+		printf("\nDigite o nome do contato: ");
+		scanf("%50[^\n]", novo -> nome);
+		printf("\nDigite a data de aniversario dd mm aaa: ");
+		scanf("%d%d%d", &novo -> dia, &novo -> mes, &novo -> ano);
+		getchar();
+		c[id] = novo;
+	}else{
+		printf("\n\tCodigo invalido!\n");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
